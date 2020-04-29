@@ -24,10 +24,15 @@ func makePattern(pattern string) (m match) {
 	}
 	aPattern := strings.Split(pattern, "/")
 	var i int = 0
+	var hasOpt bool = false
 	var out = make([]seg, len(aPattern))
 	for i = 0; i < len(aPattern); i++ {
+		if hasOpt && i < len(aPattern) {
+			panic("malformed pattern")
+		}
 		if strings.HasPrefix(aPattern[i], ":") {
 			if strings.HasSuffix(aPattern[i], "?") {
+				hasOpt = true
 				out[i] = seg{
 					Param:      aPattern[i],
 					IsParam:    true,
@@ -40,6 +45,7 @@ func makePattern(pattern string) (m match) {
 				}
 			}
 		} else if aPattern[i] == "*" {
+			hasOpt = true
 			out[i] = seg{
 				Param:      aPattern[i],
 				IsWildcard: true,
@@ -72,6 +78,10 @@ func (m *match) matchs(uri string) (res map[string]string, ok bool) {
 			res[v.Param[1:len(v.Param)-1]] = val
 		} else if v.IsWildcard {
 			res[v.Param] = val
+		} else {
+			if val != v.Const {
+				return nil, false
+			}
 		}
 	}
 	ok = true
