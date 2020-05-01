@@ -13,12 +13,14 @@ type seg struct {
 	IsWildcard bool
 }
 
-type match struct {
+// Path ...
+type Path struct {
 	S      []seg
 	Params map[string]string
 }
 
-func makePattern(pattern string) (m match) {
+// New ...
+func New(pattern string) (p Path) {
 	if pattern == "*" {
 		return
 	}
@@ -56,22 +58,23 @@ func makePattern(pattern string) (m match) {
 			}
 		}
 	}
-	m = match{S: out[1:]}
+	p = Path{S: out[1:]}
 	return
 }
 
-func (m *match) matchs(uri string) (res map[string]string, ok bool) {
+// Match ...
+func (m *Path) Match(uri string) (map[string]string, bool) {
 	aURI := strings.Split(uri, "/")
 	if len(aURI[1:]) > len(m.S) {
-		return
+		return nil, false
 	}
-	res = map[string]string{}
+	res := map[string]string{}
 	for k, v := range m.S {
 		val := aURI[k+1]
 		if v.IsParam && !v.IsOptional {
 			if val == "" {
 				fmt.Println("ERR: not match")
-				return
+				return nil, false
 			}
 			res[v.Param[1:]] = val
 		} else if v.IsParam && v.IsOptional {
@@ -84,12 +87,5 @@ func (m *match) matchs(uri string) (res map[string]string, ok bool) {
 			}
 		}
 	}
-	ok = true
-	return
-}
-
-func main() {
-	str := "/api/:param/:opt?"
-	x := makePattern(str)
-	fmt.Println(x.matchs("/api/a/b"))
+	return res, true
 }
