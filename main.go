@@ -64,6 +64,8 @@ func New(pattern string) (p Path) {
 
 // Match ...
 func (m *Path) Match(uri string) (map[string]string, bool) {
+	// (TODO): improve loop to remove split
+	// based on code path native golang
 	aURI := strings.Split(uri, "/")
 	if len(aURI[1:]) > len(m.S) {
 		return nil, false
