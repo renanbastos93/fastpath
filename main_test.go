@@ -1,4 +1,4 @@
-package main
+package fastpath
 
 import (
 	"reflect"
@@ -27,27 +27,27 @@ func TestPath_Match(t *testing.T) {
 				// 	ok:     true,
 				// },
 				{
-					uri:    "/api/v1/entity/",
+					uri:    "api/v1/entity/",
 					params: map[string]string{"param": "entity", "*": ""},
 					ok:     true,
 				},
 				{
-					uri:    "/api/v1/entity/1",
+					uri:    "api/v1/entity/1",
 					params: map[string]string{"param": "entity", "*": "1"},
 					ok:     true,
 				},
 				{
-					uri:    "/api/v",
+					uri:    "api/v",
 					params: nil,
 					ok:     false,
 				},
 				{
-					uri:    "/api/v2",
+					uri:    "api/v2",
 					params: nil,
 					ok:     false,
 				},
 				{
-					uri:    "/api/v1/",
+					uri:    "api/v1/",
 					params: nil,
 					ok:     false,
 				},
@@ -64,27 +64,27 @@ func TestPath_Match(t *testing.T) {
 				// 	ok:     true,
 				// },
 				{
-					uri:    "/api/v1/",
+					uri:    "api/v1/",
 					params: map[string]string{"param": ""},
 					ok:     true,
 				},
 				{
-					uri:    "/api/v1/optional",
+					uri:    "api/v1/optional",
 					params: map[string]string{"param": "optional"},
 					ok:     true,
 				},
 				{
-					uri:    "/api/v",
+					uri:    "api/v",
 					params: nil,
 					ok:     false,
 				},
 				{
-					uri:    "/api/v2",
+					uri:    "api/v2",
 					params: nil,
 					ok:     false,
 				},
 				{
-					uri:    "/api/xyz",
+					uri:    "api/xyz",
 					params: nil,
 					ok:     false,
 				},
@@ -92,7 +92,7 @@ func TestPath_Match(t *testing.T) {
 		},
 		// Pattern: /api/v1/*
 		{
-			name:    "For match URL to Pattern with a param and wildcard",
+			name:    "For match URL to Pattern with wildcard",
 			pattern: New("/api/v1/*"),
 			cases: []cases{
 				// {
@@ -101,27 +101,27 @@ func TestPath_Match(t *testing.T) {
 				// 	ok:     true,
 				// },
 				{
-					uri:    "/api/v1/",
+					uri:    "api/v1/",
 					params: map[string]string{"*": ""},
 					ok:     true,
 				},
 				{
-					uri:    "/api/v1/entity",
+					uri:    "api/v1/entity",
 					params: map[string]string{"*": "entity"},
 					ok:     true,
 				},
 				{
-					uri:    "/api/v",
+					uri:    "api/v",
 					params: nil,
 					ok:     false,
 				},
 				{
-					uri:    "/api/v2",
+					uri:    "api/v2",
 					params: nil,
 					ok:     false,
 				},
 				{
-					uri:    "/api/abc",
+					uri:    "api/abc",
 					params: nil,
 					ok:     false,
 				},
@@ -129,11 +129,11 @@ func TestPath_Match(t *testing.T) {
 		},
 		// Pattern: /api/v1/:param
 		{
-			name:    "For match URL to Pattern with a param and wildcard",
+			name:    "For match URL to Pattern with a param",
 			pattern: New("/api/v1/:param"),
 			cases: []cases{
 				{
-					uri:    "/api/v1/entity",
+					uri:    "api/v1/entity",
 					params: map[string]string{"param": "entity"},
 					ok:     true,
 				},
@@ -143,23 +143,19 @@ func TestPath_Match(t *testing.T) {
 				// 	ok:     false,
 				// },
 				{
-					uri:    "/api/v1/",
+					uri:    "api/v1/",
 					params: nil,
 					ok:     false,
 				},
 			},
 		},
 		// Pattern: /api/v1/const
-		// /api/v1/const # sucess
-		// /api/v1 # error
-		// /api/v1/ # error
-		// /api/v1/something # error
 		{
-			name:    "For match URL to Pattern with a param and wildcard",
+			name:    "For match URL to Pattern without a param or wildcard",
 			pattern: New("/api/v1/const"),
 			cases: []cases{
 				{
-					uri:    "/api/v1/const",
+					uri:    "api/v1/const",
 					params: map[string]string{},
 					ok:     true,
 				},
@@ -169,12 +165,39 @@ func TestPath_Match(t *testing.T) {
 				// 	ok:     false,
 				// },
 				{
-					uri:    "/api/v1/",
+					uri:    "api/v1/",
 					params: nil,
 					ok:     false,
 				},
 				{
-					uri:    "/api/v1/something",
+					uri:    "api/v1/something",
+					params: nil,
+					ok:     false,
+				},
+			},
+		},
+		// Pattern: /api/v1/:param/abc/*
+		{
+			name:    "For match URL to Pattern with a param and wildcard differents position",
+			pattern: New("/api/v1/:param/abc/*"),
+			cases: []cases{
+				{
+					uri:    "api/v1/well/abc/wildcard",
+					params: map[string]string{"param": "well", "*": "wildcard"},
+					ok:     true,
+				},
+				// {
+				// 	uri:    "/api/v1/well/abc/wildcard",
+				// 	params: map[string]string{"param": "well", "*": "wildcard"},
+				// 	ok:     true,
+				// },
+				{
+					uri:    "api/v1/well/abc/",
+					params: map[string]string{"param": "well", "*": ""},
+					ok:     true,
+				},
+				{
+					uri:    "api/v1/well/abc",
 					params: nil,
 					ok:     false,
 				},
@@ -209,6 +232,6 @@ func TestNew_failPattern(t *testing.T) {
 }
 
 // go test -coverprofile "coverage.html" "github.com/renanbastos93/fastpath" . && go tool cover -func="coverage.html"
-// github.com/renanbastos93/fastpath/main.go:23:   New             95.0%
-// github.com/renanbastos93/fastpath/main.go:66:   Match           94.4%
-// total:                                          (statements)    94.7%
+// github.com/renanbastos93/fastpath/main.go:22:   New             95.0%
+// github.com/renanbastos93/fastpath/main.go:66:   Match           96.0%
+// total:                                          (statements)    95.6%

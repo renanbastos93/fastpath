@@ -1,7 +1,6 @@
-package main
+package fastpath
 
 import (
-	"fmt"
 	"path"
 	"regexp"
 	"testing"
@@ -14,29 +13,30 @@ import (
 
 func BenchmarkNew(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		New("/api/v1/:param/*")
+		New("/api/v1/:param/abc/*")
 	}
 }
 
 func BenchmarkMatchNative(b *testing.B) {
-	for n := 0; n < b.N; n++ {
-		path.Match("/api/v1/?/*", "/api/v1/entity/id")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		path.Match("/api/?/abc/?", "/api/v1/vamo/abc/optional")
 	}
 }
 
 func BenchmarkMatch(b *testing.B) {
-	p := New("/api/v1/:param/*")
+	p := New("/api/v1/:param/abc/*")
 	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		p.Match("/api/v1/entity/id")
+	for i := 0; i < b.N; i++ {
+		p.Match("/api/v1/vamo/abc/optional")
 	}
 }
 
 func BenchmarkRegex(b *testing.B) {
-	regex := regexp.MustCompile("/api/v1/(?P<param>[^/]+)/.*")
+	regex := regexp.MustCompile("/api/v1/(?P<param>[^/]+)/abc/(.*)")
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		regex.FindStringSubmatch(fmt.Sprintf("/api/v1/param%d/extra", i))
+		regex.FindStringSubmatch("/api/v1/vamo/abc/optional")
 	}
 }
 
@@ -50,3 +50,14 @@ func BenchmarkRegex(b *testing.B) {
 // BenchmarkRegex-4   	 1340355	       903 ns/op	      72 B/op	       3 allocs/op
 // PASS
 // ok  	github.com/renanbastos93/fastpath	5.273s
+
+// WINDOWS
+// goos: windows
+// goarch: amd64
+// pkg: github.com/renanbastos93/fastpath
+// BenchmarkNew-6                   4658312               251 ns/op             336 B/op          2 allocs/op
+// BenchmarkMatchNative-6          35389251                33.1 ns/op             0 B/op          0 allocs/op
+// BenchmarkMatch-6                28632032                41.2 ns/op            48 B/op          1 allocs/op
+// BenchmarkRegex-6                 2697618               441 ns/op             112 B/op          2 allocs/op
+// PASS
+// ok      github.com/renanbastos93/fastpath       5.677s

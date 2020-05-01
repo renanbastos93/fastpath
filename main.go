@@ -1,7 +1,6 @@
-package main
+package fastpath
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -15,8 +14,7 @@ type seg struct {
 
 // Path ...
 type Path struct {
-	S      []seg
-	Params map[string]string
+	S []seg
 }
 
 // New ...
@@ -25,10 +23,9 @@ func New(pattern string) (p Path) {
 		return
 	}
 	aPattern := strings.Split(pattern, "/")
-	var i int = 0
 	var hasOpt bool = false
 	var out = make([]seg, len(aPattern))
-	for i = 0; i < len(aPattern); i++ {
+	for i := 0; i < len(aPattern); i++ {
 		if hasOpt && i < len(aPattern) {
 			panic("malformed pattern")
 		}
@@ -50,6 +47,7 @@ func New(pattern string) (p Path) {
 			hasOpt = true
 			out[i] = seg{
 				Param:      aPattern[i],
+				IsParam:    true,
 				IsWildcard: true,
 			}
 		} else {
@@ -63,31 +61,52 @@ func New(pattern string) (p Path) {
 }
 
 // Match ...
-func (m *Path) Match(uri string) (map[string]string, bool) {
-	// (TODO): improve loop to remove split
-	// based on code path native golang
-	aURI := strings.Split(uri, "/")
-	if len(aURI[1:]) > len(m.S) {
-		return nil, false
-	}
-	res := map[string]string{}
-	for k, v := range m.S {
-		val := aURI[k+1]
-		if v.IsParam && !v.IsOptional {
-			if val == "" {
-				fmt.Println("ERR: not match")
+func (p *Path) Match(s string) (map[string]string, bool) {
+	params := map[string]string{}
+	/*
+		DEGRADED PERFORMANCE
+		SO WE COMMENTED THIS BLOCK
+		if s[0:1] == "/" && s[len(s)-1:] != "/" {
+			s = s[1:] + "/"
+		} else {
+			s = s[1:]
+		}
+	*/
+	for segmentIndex, segment := range p.S {
+		i := strings.IndexByte(s, '/')
+		j := i + 1
+
+		if i == -1 {
+			i = len(s)
+			j = len(s)
+			if segmentIndex != len(p.S)-1 {
 				return nil, false
 			}
-			res[v.Param[1:]] = val
-		} else if v.IsParam && v.IsOptional {
-			res[v.Param[1:len(v.Param)-1]] = val
-		} else if v.IsWildcard {
-			res[v.Param] = val
 		} else {
-			if val != v.Const {
+			if segmentIndex == len(p.S)-1 {
 				return nil, false
 			}
 		}
+		if segment.IsParam {
+			if segment.IsOptional {
+				params[segment.Param[1:len(segment.Param)-1]] = s[:i]
+				continue
+			}
+			if segment.IsWildcard {
+				params[segment.Param] = s[:i]
+				continue
+			}
+			if s[:i] == "" {
+				return nil, false
+			}
+			params[segment.Param[1:]] = s[:i]
+		} else {
+			if s[:i] != segment.Const {
+				return nil, false
+			}
+		}
+
+		s = s[j:]
 	}
-	return res, true
+	return params, true
 }
