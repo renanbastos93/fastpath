@@ -198,6 +198,93 @@ func TestPath_Match(t *testing.T) {
 				},
 			},
 		},
+		// Pattern: /:day?/:month?/:year?
+		{
+			name:    "For match URL to Pattern with paremeters optional",
+			pattern: New("/api/:day/:month?/:year?"),
+			cases: []cases{
+				{
+					uri:    "/api/1",
+					params: nil,
+					ok:     false,
+				}, {
+					uri:    "/api/1/",
+					params: map[string]string{"day": "1", "month": "", "year": ""},
+					ok:     true,
+				},
+				{
+					uri:    "/api/1/2",
+					params: map[string]string{"day": "1", "month": "2", "year": ""},
+					ok:     true,
+				},
+				{
+					uri:    "/api/1/2/3",
+					params: map[string]string{"day": "1", "month": "2", "year": "3"},
+					ok:     true,
+				},
+			},
+		},
+		// Pattern: /api/*
+		{
+			name:    "Wildcard simple",
+			pattern: New("/api/*"),
+			cases: []cases{
+				{
+					uri:    "/api/",
+					params: map[string]string{"*": ""},
+					ok:     true,
+				},
+				{
+					uri:    "/api/joker",
+					params: map[string]string{"*": "joker"},
+					ok:     true,
+				},
+				{
+					uri:    "/api",
+					params: nil,
+					ok:     false,
+				},
+			},
+		},
+		// Pattern: /
+		{
+			name:    "Simple path",
+			pattern: New("/"),
+			cases: []cases{
+				{
+					uri:    "/api",
+					params: nil,
+					ok:     false,
+				},
+				{
+					uri:    "",
+					params: nil,
+					ok:     false,
+				},
+				{
+					uri:    "/",
+					params: map[string]string{},
+					ok:     true,
+				},
+			},
+		},
+		// with not match with simple pattern
+		{
+			name:    "Simple path",
+			pattern: New("/xyz"),
+			cases: []cases{
+				{
+					uri:    "xyz",
+					params: nil,
+					ok:     false,
+				},
+				{
+					uri:    "xyz/",
+					params: nil,
+					ok:     false,
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -212,18 +299,6 @@ func TestPath_Match(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestNew_failPattern(t *testing.T) {
-	func() {
-		defer func() {
-			if r := recover(); r == nil {
-				t.Errorf("TestNew_failPattern should have panicked!")
-			}
-		}()
-		// This function should cause a panic
-		New("/api/v1/:param?/*")
-	}()
 }
 
 // go test -coverprofile "coverage.html" "github.com/renanbastos93/fastpath" . && go tool cover -func="coverage.html"

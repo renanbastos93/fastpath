@@ -19,15 +19,10 @@ type Path struct {
 // New ...
 func New(pattern string) (p Path) {
 	aPattern := strings.Split(pattern, "/")
-	var hasOpt bool = false
 	var out = make([]seg, len(aPattern))
 	for i := 0; i < len(aPattern); i++ {
-		if hasOpt && i < len(aPattern) {
-			panic("malformed pattern")
-		}
 		if strings.HasPrefix(aPattern[i], ":") {
 			if strings.HasSuffix(aPattern[i], "?") {
-				hasOpt = true
 				out[i] = seg{
 					Param:      aPattern[i][1 : len(aPattern[i])-1],
 					IsParam:    true,
@@ -40,7 +35,6 @@ func New(pattern string) (p Path) {
 				}
 			}
 		} else if aPattern[i] == "*" {
-			hasOpt = true
 			out[i] = seg{
 				Param:      aPattern[i],
 				IsParam:    true,
@@ -66,7 +60,7 @@ func (p *Path) Match(s string) (map[string]string, bool) {
 		if i == -1 {
 			i = len(s)
 			j = len(s)
-			if segmentIndex != len(p.S)-1 {
+			if segmentIndex != len(p.S)-1 && !segment.IsOptional {
 				return nil, false
 			}
 		} else {
