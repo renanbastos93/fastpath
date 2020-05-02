@@ -72,15 +72,3 @@ func BenchmarkMatch(b *testing.B) {
 		_, _ = p.Match(uri)
 	}
 }
-
-// go test -benchmem -run=^$ -bench . | /Users/renanbastos/go/bin/prettybench
-// go test -benchmem -run=^$ -bench .
-
-// goos: windows
-// goarch: amd64
-// pkg: github.com/renanbastos93/fastpath
-// BenchmarkRegexp-6        1993332               594 ns/op             304 B/op          3 allocs/op
-// BenchmarkUrlPath-6       7854816               150 ns/op             336 B/op          2 allocs/op
-// BenchmarkMatch-6         7895557               150 ns/op             336 B/op          2 allocs/op
-// PASS
-// ok      github.com/renanbastos93/fastpath       4.626s         144 B/op          3 allocs/op

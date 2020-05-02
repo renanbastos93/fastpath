@@ -46,3 +46,15 @@ BenchmarkMatch-6         7895557               150 ns/op             336 B/op   
 PASS
 ok      github.com/renanbastos93/fastpath       4.626s
 ``` 
+
+### MacOS
+```
+goos: darwin
+goarch: amd64
+pkg: github.com/renanbastos93/fastpath
+BenchmarkRegexp-4    	  962472	      1190 ns/op	     304 B/op	       3 allocs/op
+BenchmarkUrlPath-4   	 4239836	       270 ns/op	     336 B/op	       2 allocs/op
+BenchmarkMatch-4     	 4650106	       260 ns/op	     336 B/op	       2 allocs/op
+PASS
+ok  	github.com/renanbastos93/fastpath	5.116s
+```

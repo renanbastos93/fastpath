@@ -21,11 +21,11 @@ func TestPath_Match(t *testing.T) {
 			name:    "For match URL to Pattern with a param and wildcard",
 			pattern: New("/api/v1/:param/*"),
 			cases: []cases{
-				// {
-				// 	uri:    "/api/v1/entity",
-				// 	params: map[string]string{"param": "entity", "*": ""},
-				// 	ok:     true,
-				// },
+				{
+					uri:    "/api/v1/entity",
+					params: nil,
+					ok:     false,
+				},
 				{
 					uri:    "/api/v1/entity/",
 					params: map[string]string{"param": "entity", "*": ""},
@@ -58,11 +58,11 @@ func TestPath_Match(t *testing.T) {
 			name:    "For match URL to Pattern with a param optional",
 			pattern: New("/api/v1/:param?"),
 			cases: []cases{
-				// {
-				// 	uri:    "/api/v1",
-				// 	params: nil,
-				// 	ok:     true,
-				// },
+				{
+					uri:    "/api/v1",
+					params: nil,
+					ok:     false,
+				},
 				{
 					uri:    "/api/v1/",
 					params: map[string]string{"param": ""},
@@ -95,11 +95,11 @@ func TestPath_Match(t *testing.T) {
 			name:    "For match URL to Pattern with wildcard",
 			pattern: New("/api/v1/*"),
 			cases: []cases{
-				// {
-				// 	uri:    "/api/v1",
-				// 	params: map[string]string{"*": "entity"},
-				// 	ok:     true,
-				// },
+				{
+					uri:    "/api/v1",
+					params: nil,
+					ok:     false,
+				},
 				{
 					uri:    "/api/v1/",
 					params: map[string]string{"*": ""},
@@ -137,11 +137,11 @@ func TestPath_Match(t *testing.T) {
 					params: map[string]string{"param": "entity"},
 					ok:     true,
 				},
-				// {
-				// 	uri:    "/api/v1",
-				// 	params: nil,
-				// 	ok:     false,
-				// },
+				{
+					uri:    "/api/v1",
+					params: nil,
+					ok:     false,
+				},
 				{
 					uri:    "/api/v1/",
 					params: nil,
@@ -159,11 +159,11 @@ func TestPath_Match(t *testing.T) {
 					params: map[string]string{},
 					ok:     true,
 				},
-				// {
-				// 	uri:    "/api/v1",
-				// 	params: nil,
-				// 	ok:     false,
-				// },
+				{
+					uri:    "/api/v1",
+					params: nil,
+					ok:     false,
+				},
 				{
 					uri:    "/api/v1/",
 					params: nil,
@@ -186,11 +186,6 @@ func TestPath_Match(t *testing.T) {
 					params: map[string]string{"param": "well", "*": "wildcard"},
 					ok:     true,
 				},
-				// {
-				// 	uri:    "/api/v1/well/abc/wildcard",
-				// 	params: map[string]string{"param": "well", "*": "wildcard"},
-				// 	ok:     true,
-				// },
 				{
 					uri:    "/api/v1/well/abc/",
 					params: map[string]string{"param": "well", "*": ""},
