@@ -1,4 +1,4 @@
-![Tests](https://github.com/renanbastos93/fastpath/workflows/Tests/badge.svg)
+![Go](https://github.com/renanbastos93/fastpath/workflows/Go/badge.svg)
 
 # fastpath
 This lib was based on [URLPATH](https://github.com/ucarion/urlpath) created by [@ucarion](https://github.com/ucarion), the start was made a fork it. Even so, we created a new repository without the fork. But the credits are entirely from Ucarion.
