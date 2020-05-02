@@ -9,7 +9,6 @@ type seg struct {
 	Const      string
 	IsParam    bool
 	IsOptional bool
-	IsWildcard bool
 }
 
 // Path ...
@@ -19,9 +18,6 @@ type Path struct {
 
 // New ...
 func New(pattern string) (p Path) {
-	if pattern == "*" {
-		return
-	}
 	aPattern := strings.Split(pattern, "/")
 	var hasOpt bool = false
 	var out = make([]seg, len(aPattern))
@@ -33,13 +29,13 @@ func New(pattern string) (p Path) {
 			if strings.HasSuffix(aPattern[i], "?") {
 				hasOpt = true
 				out[i] = seg{
-					Param:      aPattern[i],
+					Param:      aPattern[i][1 : len(aPattern[i])-1],
 					IsParam:    true,
 					IsOptional: true,
 				}
 			} else {
 				out[i] = seg{
-					Param:   aPattern[i],
+					Param:   aPattern[i][1:],
 					IsParam: true,
 				}
 			}
@@ -48,7 +44,7 @@ func New(pattern string) (p Path) {
 			out[i] = seg{
 				Param:      aPattern[i],
 				IsParam:    true,
-				IsWildcard: true,
+				IsOptional: true,
 			}
 		} else {
 			out[i] = seg{
@@ -56,22 +52,13 @@ func New(pattern string) (p Path) {
 			}
 		}
 	}
-	p = Path{S: out[1:]}
+	p = Path{S: out}
 	return
 }
 
 // Match ...
 func (p *Path) Match(s string) (map[string]string, bool) {
 	params := map[string]string{}
-	/*
-		DEGRADED PERFORMANCE
-		SO WE COMMENTED THIS BLOCK
-		if s[0:1] == "/" && s[len(s)-1:] != "/" {
-			s = s[1:] + "/"
-		} else {
-			s = s[1:]
-		}
-	*/
 	for segmentIndex, segment := range p.S {
 		i := strings.IndexByte(s, '/')
 		j := i + 1
@@ -88,18 +75,10 @@ func (p *Path) Match(s string) (map[string]string, bool) {
 			}
 		}
 		if segment.IsParam {
-			if segment.IsOptional {
-				params[segment.Param[1:len(segment.Param)-1]] = s[:i]
-				continue
-			}
-			if segment.IsWildcard {
-				params[segment.Param] = s[:i]
-				continue
-			}
-			if s[:i] == "" {
+			if s[:i] == "" && !segment.IsOptional {
 				return nil, false
 			}
-			params[segment.Param[1:]] = s[:i]
+			params[segment.Param] = s[:i]
 		} else {
 			if s[:i] != segment.Const {
 				return nil, false
@@ -107,6 +86,7 @@ func (p *Path) Match(s string) (map[string]string, bool) {
 		}
 
 		s = s[j:]
+
 	}
 	return params, true
 }

@@ -1,67 +1,48 @@
+![Tests](https://github.com/renanbastos93/fastpath/workflows/Tests/badge.svg)
+
 # fastpath
-based on urlpath and path from go
+This lib was based on [URLPATH](https://github.com/ucarion/urlpath) created by @ucarion, the start was made a fork it. Even so, we created a new repository without the fork. But the credits are entirely from Ucarion.
 
+# How was born it?
+We need to get parameters optional to use in [Fiber](https://gofiber.io/) because we have a big need to improve the router. Until the present moment, it uses regex to validate then we go to remove with this lib.
 
-cases
+# How to use...
+```go 
+package main
 
+import (
+    "fmt"
 
-For each segment
-if optional && pathSegment == "" { break }
-if param is wildcard or optional and is not last it must have value
-else loop stops and returns
+    "github.com/renanbastos93/fastpath"
+)
 
-```
-/api/:param/:opt?
-/api/*
-/api/:param/*
-/api/:opt?
-```
+func main() {
+	p := fastpath.New("/api/user/:id")
+    params, ok := p.Match("/api/user/728342")
 
-I created some use cases to routing, can you validate to me?
-
-# Use Cases
-
-## pattern: /api/v1/:param/*
-``` bash
-/api/v1/entity # sucess
-/api/v1/entity/id # sucess
-/api/v # error
-/api/v2 # error
-/api/v2 # error
-```
-## pattern: /api/v1/:param?
-``` bash
-/api/v1/ # sucess
-/api/v1 # sucess
-/api/v1/entity # sucess
-/api/v # error
-/api/v2 # error
-/api/v2 # error
-```
-## pattern: /api/v1/*
-``` bash
-/api/v1 # sucess
-/api/v1/ # sucess
-/api/v1/entity # sucess
-/api/v # error
-/api/v2 # error
-/api/v2 # error
-```
-## pattern: /api/v1/:param
-``` bash
-/api/v1/entity # sucess
-/api/v1/ # error
-/api/v1 # error
-```
-## pattern: /api/v1/const
-``` bash
-/api/v1/const # sucess
-/api/v1 # error
-/api/v1/ # error
-/api/v1/something # error
+    if !ok {
+        // not match
+        return
+    }
+    // Matched and have parameters, so will return a map
+    fmt.Println(params["id"]) // 728342
+}
 ```
 
-## pattern: /api/v1/:param?/*
-``` bash
-# panic
+# Use cases
+It was created some use cases to validate this approach to use on Fiber. Note: Wildcard and parameter optional only can use on the last path. You can see more examples on unit tests.
+
+# Performance
+It was compare method used currently on Fiber and origin URLPath, was tested on Windows and MacOS.
+
+### Windows
 ```
+goos: windows
+goarch: amd64
+pkg: github.com/renanbastos93/fastpath
+BenchmarkRegexp-6        1993332               594 ns/op             304 B/op          3 allocs/op
+BenchmarkUrlPath-6       7854816               150 ns/op             336 B/op          2 allocs/op
+BenchmarkMatch-6         7895557               150 ns/op             336 B/op          2 allocs/op
+PASS
+ok      github.com/renanbastos93/fastpath       4.626s
+``` 
