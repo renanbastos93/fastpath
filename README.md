@@ -40,11 +40,11 @@ It was compare method used currently on Fiber and origin URLPath, was tested on 
 goos: windows
 goarch: amd64
 pkg: github.com/renanbastos93/fastpath
-BenchmarkRegexp-6        1993332               594 ns/op             304 B/op          3 allocs/op
-BenchmarkUrlPath-6       7854816               150 ns/op             336 B/op          2 allocs/op
-BenchmarkMatch-6         7895557               150 ns/op             336 B/op          2 allocs/op
+BenchmarkRegexp-6        1879828               617 ns/op             304 B/op          3 allocs/op
+BenchmarkUrlPath-6       7296402               160 ns/op             336 B/op          2 allocs/op
+BenchmarkMatch-6         7871742               152 ns/op             336 B/op          2 allocs/op
 PASS
-ok      github.com/renanbastos93/fastpath       4.626s
+ok      github.com/renanbastos93/fastpath       4.688s
 ``` 
 
 ### MacOS
