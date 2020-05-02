@@ -1,7 +1,7 @@
 ![Tests](https://github.com/renanbastos93/fastpath/workflows/Tests/badge.svg)
 
 # fastpath
-This lib was based on [URLPATH](https://github.com/ucarion/urlpath) created by @ucarion, the start was made a fork it. Even so, we created a new repository without the fork. But the credits are entirely from Ucarion.
+This lib was based on [URLPATH](https://github.com/ucarion/urlpath) created by [@ucarion](https://github.com/ucarion), the start was made a fork it. Even so, we created a new repository without the fork. But the credits are entirely from Ucarion.
 
 # How was born it?
 We need to get parameters optional to use in [Fiber](https://gofiber.io/) because we have a big need to improve the router. Until the present moment, it uses regex to validate then we go to remove with this lib.
