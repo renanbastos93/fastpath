@@ -57,13 +57,17 @@ func (p *Path) Match(s string) ([]string, bool) {
 	}
 	params := make([]string, len(p.Params), cap(p.Params))
 	paramsIterator := 0
-	for _, segment := range p.Segs {
+	for index, segment := range p.Segs {
 		i := strings.IndexByte(s, '/')
 		j := i + 1
 
 		if i == -1 || (segment.IsLast && segment.IsParam && segment.Param == "*") {
 			i = len(s)
 			j = i
+		} else if !segment.IsLast && segment.IsParam && segment.Param == "*" {
+			// for the expressjs behavior -> "/api/*/:param" - "/api/joker/batman/robin/1" -> "joker/batman/robin", "1"
+			i = findCharPos(s, '/', strings.Count(s, "/")-(len(p.Segs)-(index+1))+1)
+			j = i + 1
 		}
 		if segment.IsParam {
 			if !segment.IsOptional && s[:i] == "" {
@@ -96,4 +100,20 @@ func paramTrimmer(param string) string {
 	}
 
 	return param[start:end]
+}
+func findCharPos(s string, char byte, matchCount int) int {
+	if matchCount == 0 {
+		matchCount = 1
+	}
+	endPos, pos := 0, 0
+	for matchCount > 0 && pos != -1 {
+		if pos > 0 {
+			s = s[pos+1:]
+			endPos++
+		}
+		pos = strings.IndexByte(s, char)
+		endPos += pos
+		matchCount--
+	}
+	return endPos
 }

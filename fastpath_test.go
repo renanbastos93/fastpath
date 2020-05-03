@@ -124,7 +124,36 @@ func Test_With_With_Wildcard_And_Optional(t *testing.T) {
 			{uri: "/api/", params: []string{"", ""}, ok: true},
 			{uri: "/api/joker", params: []string{"joker", ""}, ok: true},
 			{uri: "/api/joker/batman", params: []string{"joker", "batman"}, ok: true},
+			{uri: "/api/joker/batman/robin", params: []string{"joker/batman", "robin"}, ok: true},
+			{uri: "/api/joker/batman/robin/1", params: []string{"joker/batman/robin", "1"}, ok: true},
 			{uri: "/api", params: []string{"", ""}, ok: true},
+		},
+	)
+}
+func Test_With_With_Wildcard_And_Param(t *testing.T) {
+	checkCases(
+		t,
+		New("/api/*/:param"),
+		[]testcase{
+			{uri: "/api/test/abc", params: []string{"test", "abc"}, ok: true},
+			{uri: "/api/joker/batman", params: []string{"joker", "batman"}, ok: true},
+			{uri: "/api/joker/batman/robin", params: []string{"joker/batman", "robin"}, ok: true},
+			{uri: "/api/joker/batman/robin/1", params: []string{"joker/batman/robin", "1"}, ok: true},
+			{uri: "/api", params: nil, ok: false},
+		},
+	)
+}
+func Test_With_With_Wildcard_And_2Params(t *testing.T) {
+	checkCases(
+		t,
+		New("/api/*/:param/:param2"),
+		[]testcase{
+			{uri: "/api/test/abc", params: nil, ok: false},
+			{uri: "/api/joker/batman", params: nil, ok: false},
+			{uri: "/api/joker/batman/robin", params: []string{"joker", "batman", "robin"}, ok: true},
+			{uri: "/api/joker/batman/robin/1", params: []string{"joker/batman", "robin", "1"}, ok: true},
+			{uri: "/api/joker/batman/robin/1/2", params: []string{"joker/batman/robin", "1", "2"}, ok: true},
+			{uri: "/api", params: nil, ok: false},
 		},
 	)
 }
