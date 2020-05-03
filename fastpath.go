@@ -7,6 +7,7 @@ import (
 type seg struct {
 	Param      string
 	Const      string
+	ConstLen   int
 	IsParam    bool
 	IsOptional bool
 	IsLast     bool
@@ -39,49 +40,72 @@ func New(pattern string) (p Path) {
 			params = append(params, out[i].Param)
 		} else {
 			out[i] = seg{
-				Const: aPattern[i],
+				Const:    aPattern[i],
+				ConstLen: len(aPattern[i]),
 			}
 		}
 	}
-	if patternCount != 0 {
-		out[patternCount-1].IsLast = true
+	// TODO: optimize it
+	lastIndex := -1
+	reducedOut := make([]seg, patternCount)
+	for _, seg := range out {
+		if lastIndex != -1 && reducedOut[lastIndex].ConstLen > 0 && seg.ConstLen > 0 {
+			reducedOut[lastIndex].Const += "/" + seg.Const
+			reducedOut[lastIndex].ConstLen += 1 + seg.ConstLen
+			continue
+		} else {
+			lastIndex++
+		}
+		reducedOut[lastIndex] = seg
 	}
-	p = Path{Segs: out, Params: params}
+	if lastIndex != -1 {
+		reducedOut[lastIndex].IsLast = true
+	}
+	p = Path{Segs: reducedOut[:lastIndex+1], Params: params}
 	return
 }
 
 // Match ...
 func (p *Path) Match(s string) ([]string, bool) {
+	params := make([]string, len(p.Params), cap(p.Params))
+	var i, j, paramsIterator, partLen int
 	if len(s) > 0 {
 		s = s[1:]
 	}
-	params := make([]string, len(p.Params), cap(p.Params))
-	paramsIterator := 0
 	for index, segment := range p.Segs {
-		i := strings.IndexByte(s, '/')
-		j := i + 1
-
-		if i == -1 || (segment.IsLast && segment.IsParam && segment.Param == "*") {
-			i = len(s)
-			j = i
-		} else if !segment.IsLast && segment.IsParam && segment.Param == "*" {
-			// for the expressjs behavior -> "/api/*/:param" - "/api/joker/batman/robin/1" -> "joker/batman/robin", "1"
-			i = findCharPos(s, '/', strings.Count(s, "/")-(len(p.Segs)-(index+1))+1)
-			j = i + 1
-		}
+		partLen = len(s)
 		if segment.IsParam {
-			if !segment.IsOptional && s[:i] == "" {
+			if segment.IsLast {
+				i = partLen
+			} else if !segment.IsLast && segment.Param == "*" {
+				// for the expressjs behavior -> "/api/*/:param" - "/api/joker/batman/robin/1" -> "joker/batman/robin", "1"
+				i = findCharPos(s, '/', strings.Count(s, "/")-(len(p.Segs)-(index+1))+1)
+			} else {
+				i = strings.IndexByte(s, '/')
+			}
+			if i == -1 {
+				i = partLen
+			}
+			if !segment.IsOptional && s == "" {
 				return nil, false
 			}
 			params[paramsIterator] = s[:i]
 			paramsIterator++
 		} else {
-			if s[:i] != segment.Const {
+			i = segment.ConstLen
+			if partLen < i || (i == 0 && partLen > 0) || s[:i] != segment.Const {
 				return nil, false
 			}
 		}
 
-		s = s[j:]
+		if partLen > 0 {
+			j = i + 1
+			if segment.IsLast || partLen < j {
+				j = i
+			}
+
+			s = s[j:]
+		}
 	}
 
 	return params, true
