@@ -168,6 +168,17 @@ func Test_With_With_Simple_Path(t *testing.T) {
 		},
 	)
 }
+func Test_With_With_Empty_Path(t *testing.T) {
+	checkCases(
+		t,
+		New(""),
+		[]testcase{
+			{uri: "/api", params: nil, ok: false},
+			{uri: "", params: []string{}, ok: true},
+			{uri: "/", params: []string{}, ok: true},
+		},
+	)
+}
 func Test_With_With_Simple_Path_And_NoMatch(t *testing.T) {
 	checkCases(
 		t,

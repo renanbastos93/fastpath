@@ -7,7 +7,6 @@ import (
 type seg struct {
 	Param      string
 	Const      string
-	ConstLen   int
 	IsParam    bool
 	IsOptional bool
 	IsLast     bool
@@ -21,10 +20,16 @@ type Path struct {
 
 // New ...
 func New(pattern string) (p Path) {
-	aPattern := strings.Split(pattern, "/")[1:] // every route starts with an "/"
-	patternCount := len(aPattern)
+	var patternCount int
+	aPattern := []string{""}
+	if pattern != "" {
+		aPattern = strings.Split(pattern, "/")[1:] // every route starts with an "/"
+	}
+	patternCount = len(aPattern)
+
 	var out = make([]seg, patternCount)
 	var params []string
+	var segIndex int
 	for i := 0; i < patternCount; i++ {
 		partLen := len(aPattern[i])
 		if partLen == 0 { // skip empty parts
@@ -32,36 +37,30 @@ func New(pattern string) (p Path) {
 		}
 		// is parameter
 		if aPattern[i][0] == '*' || aPattern[i][0] == ':' {
-			out[i] = seg{
+			out[segIndex] = seg{
 				Param:      paramTrimmer(aPattern[i]),
 				IsParam:    true,
 				IsOptional: aPattern[i] == "*" || aPattern[i][partLen-1] == '?',
 			}
-			params = append(params, out[i].Param)
+			params = append(params, out[segIndex].Param)
 		} else {
-			out[i] = seg{
-				Const:    aPattern[i],
-				ConstLen: len(aPattern[i]),
+			if segIndex > 0 && out[segIndex-1].IsParam == false {
+				segIndex--
+				out[segIndex].Const += "/" + aPattern[i]
+			} else {
+				out[segIndex] = seg{
+					Const: aPattern[i],
+				}
 			}
 		}
+		segIndex++
 	}
-	// TODO: optimize it
-	lastIndex := -1
-	reducedOut := make([]seg, patternCount)
-	for _, seg := range out {
-		if lastIndex != -1 && reducedOut[lastIndex].ConstLen > 0 && seg.ConstLen > 0 {
-			reducedOut[lastIndex].Const += "/" + seg.Const
-			reducedOut[lastIndex].ConstLen += 1 + seg.ConstLen
-			continue
-		} else {
-			lastIndex++
-		}
-		reducedOut[lastIndex] = seg
+	if segIndex == 0 {
+		segIndex++
 	}
-	if lastIndex != -1 {
-		reducedOut[lastIndex].IsLast = true
-	}
-	p = Path{Segs: reducedOut[:lastIndex+1], Params: params}
+	out[segIndex-1].IsLast = true
+
+	p = Path{Segs: out[:segIndex:segIndex], Params: params}
 	return
 }
 
@@ -92,7 +91,7 @@ func (p *Path) Match(s string) ([]string, bool) {
 			params[paramsIterator] = s[:i]
 			paramsIterator++
 		} else {
-			i = segment.ConstLen
+			i = len(segment.Const)
 			if partLen < i || (i == 0 && partLen > 0) || s[:i] != segment.Const {
 				return nil, false
 			}
