@@ -21,12 +21,12 @@ type Path struct {
 // New ...
 func New(pattern string) (p Path) {
 	aPattern := strings.Split(pattern, "/")[1:] // every route starts with an "/"
-	patternLen := len(aPattern)
-	var out = make([]seg, patternLen)
+	patternCount := len(aPattern)
+	var out = make([]seg, patternCount)
 	var params []string
-	for i := 0; i < patternLen; i++ {
-		patternLen := len(aPattern[i])
-		if patternLen == 0 { // skip empty parts
+	for i := 0; i < patternCount; i++ {
+		partLen := len(aPattern[i])
+		if partLen == 0 { // skip empty parts
 			continue
 		}
 		// is parameter
@@ -34,7 +34,7 @@ func New(pattern string) (p Path) {
 			out[i] = seg{
 				Param:      paramTrimmer(aPattern[i]),
 				IsParam:    true,
-				IsOptional: aPattern[i] == "*" || aPattern[i][patternLen-1] == '?',
+				IsOptional: aPattern[i] == "*" || aPattern[i][partLen-1] == '?',
 			}
 			params = append(params, out[i].Param)
 		} else {
@@ -43,8 +43,8 @@ func New(pattern string) (p Path) {
 			}
 		}
 	}
-	if patternLen != 0 {
-		out[patternLen-1].IsLast = true
+	if patternCount != 0 {
+		out[patternCount-1].IsLast = true
 	}
 	p = Path{Segs: out, Params: params}
 	return
