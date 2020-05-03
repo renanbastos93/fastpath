@@ -1,12 +1,12 @@
 ![Go](https://github.com/renanbastos93/fastpath/workflows/Go/badge.svg)
 
 # fastpath
-This lib was based on [URLPATH](https://github.com/ucarion/urlpath) created by [@ucarion](https://github.com/ucarion), the start was made a fork it. Even so, we created a new repository without the fork. But the credits are entirely from Ucarion.
+This library was based on [urlpath](https://github.com/ucarion/urlpath) created by [@ucarion](https://github.com/ucarion). It started as a fork, but we've eventually decided to rewrite it from the ground up, based on the original code. All credits for the original library go to @ucarion.
 
-# How was born it?
-We need to get parameters optional to use in [Fiber](https://gofiber.io/) because we have a big need to improve the router. Until the present moment, it uses regex to validate then we go to remove with this lib.
+## How was it born?
+We wanted to come up with a route matching strategy for [Fiber](https://gofiber.io/) because at the time this library was created, it used regex for this purpose. Go's regex is currently very slow compared to other languages, so in order to achieve the best performance, we had to do it our own way.
 
-# How to use...
+## Usage
 ```go 
 package main
 
@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	p := fastpath.New("/api/user/:id")
+    p := fastpath.New("/api/user/:id")
     params, ok := p.Match("/api/user/728342")
 
     if !ok {
@@ -29,12 +29,11 @@ func main() {
 }
 ```
 
-# Use cases
-It was created some use cases to validate this approach to use on Fiber. Note: Wildcard and parameter optional only can use on the last path. You can see more examples on unit tests.
+## Performance
+We have compared the performance of `fastpath` with Fiber's regex matcher and the original `urlpath` library.
 
-# Performance
-It was compare method used currently on Fiber and origin URLPath, was tested on MacOS.
-### MacOS
+TODO: update benchmarks
+
 ```
 goos: darwin
 goarch: amd64
