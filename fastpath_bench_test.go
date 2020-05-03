@@ -1,6 +1,7 @@
 package fastpath
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"testing"
@@ -70,5 +71,48 @@ func BenchmarkMatch(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, _ = p.Match(uri)
+	}
+}
+func BenchmarkFastPathCompileTime(bParent *testing.B) {
+	cases := []string{
+		"/api/v1/:param/*",
+		"/api/*",
+		"/api/v1/const",
+		"/api/v1/test",
+		"/api/v1/:param?",
+		"/api/v1/:param2?",
+		"/api/v1/:param/:param2?",
+		"/api/v1/:param/:param2/:param3",
+		"/api/v1/:param/:param2/:nomatch",
+	}
+	for _, bPattern := range cases {
+		bParent.Run(fmt.Sprintf("%s", bPattern), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = New(bPattern)
+			}
+		})
+	}
+}
+
+func BenchmarkMatchCases(bParent *testing.B) {
+	cases := map[string]string{
+		"/api/v1/:param/*":                "/api/v1/entity/1",
+		"/api/*":                          "/api/v1/entity/1",
+		"/api/v1/const":                   "/api/v1/const",
+		"/api/v1/test":                    "/api/v1/noMatch",
+		"/api/v1/:param?":                 "/api/v1/entity",
+		"/api/v1/:param2?":                "/api/v1/",
+		"/api/v1/:param/:param2?":         "/api/v1/entity/1",
+		"/api/v1/:param/:param2/:param3":  "/api/v1/entity/1/2",
+		"/api/v1/:param/:param2/:nomatch": "/api/v1/entity/1",
+	}
+	for bPattern, bUrl := range cases {
+		bParent.Run(fmt.Sprintf("%s - %s", bPattern, bUrl), func(b *testing.B) {
+			parser := New(bPattern)
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				_, _ = parser.Match(bUrl)
+			}
+		})
 	}
 }
