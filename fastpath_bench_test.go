@@ -108,6 +108,7 @@ func BenchmarkMatchCases(bParent *testing.B) {
 		"/api/v1/:param2?":                "/api/v1/",
 		"/api/v1/:param/:param2?":         "/api/v1/entity/1",
 		"/api/v1/:param/:param2/:param3":  "/api/v1/entity/1/2",
+		"/api/v1/*/:param3":               "/api/v1/entity/1/2",
 		"/api/v1/:param/:param2/:nomatch": "/api/v1/entity/1",
 	}
 	for bPattern, bUrl := range cases {
