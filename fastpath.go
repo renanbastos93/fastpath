@@ -5,26 +5,26 @@ import (
 )
 
 type seg struct {
-	Param       string
-	Const       string
-	ConstLength int
-	IsParam     bool
-	IsOptional  bool
+	Param      string
+	Const      string
+	IsParam    bool
+	IsOptional bool
+	IsLast     bool
 }
 
 // Path ...
 type Path struct {
-	Segs       []seg
-	SegsLength int
-	Params     []string
+	Segs   []seg
+	Params []string
 }
 
 // New ...
 func New(pattern string) (p Path) {
 	aPattern := strings.Split(pattern, "/")[1:] // every route starts with an "/"
-	var out = make([]seg, len(aPattern))
+	patternLen := len(aPattern)
+	var out = make([]seg, patternLen)
 	var params []string
-	for i := 0; i < len(aPattern); i++ {
+	for i := 0; i < patternLen; i++ {
 		patternLen := len(aPattern[i])
 		if patternLen == 0 { // skip empty parts
 			continue
@@ -43,8 +43,10 @@ func New(pattern string) (p Path) {
 			}
 		}
 	}
-
-	p = Path{Segs: out, SegsLength: len(out), Params: params}
+	if patternLen != 0 {
+		out[patternLen-1].IsLast = true
+	}
+	p = Path{Segs: out, Params: params}
 	return
 }
 
@@ -59,12 +61,12 @@ func (p *Path) Match(s string) ([]string, bool) {
 		i := strings.IndexByte(s, '/')
 		j := i + 1
 
-		if i == -1 || (segment.IsParam && segment.Param == "*") {
+		if i == -1 || (segment.IsLast && segment.IsParam && segment.Param == "*") {
 			i = len(s)
 			j = i
 		}
 		if segment.IsParam {
-			if s[:i] == "" && !segment.IsOptional {
+			if !segment.IsOptional && s[:i] == "" {
 				return nil, false
 			}
 			params[paramsIterator] = s[:i]

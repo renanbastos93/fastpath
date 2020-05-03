@@ -116,6 +116,18 @@ func Test_With_With_Simple_Wildcard(t *testing.T) {
 		},
 	)
 }
+func Test_With_With_Wildcard_And_Optional(t *testing.T) {
+	checkCases(
+		t,
+		New("/api/*/:param?"),
+		[]testcase{
+			{uri: "/api/", params: []string{"", ""}, ok: true},
+			{uri: "/api/joker", params: []string{"joker", ""}, ok: true},
+			{uri: "/api/joker/batman", params: []string{"joker", "batman"}, ok: true},
+			{uri: "/api", params: []string{"", ""}, ok: true},
+		},
+	)
+}
 func Test_With_With_Simple_Path(t *testing.T) {
 	checkCases(
 		t,
