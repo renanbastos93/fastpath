@@ -75,6 +75,8 @@ func BenchmarkMatch(b *testing.B) {
 }
 func BenchmarkFastPathCompileTime(bParent *testing.B) {
 	cases := []string{
+		"",
+		"/",
 		"/api/v1/:param/*",
 		"/api/*",
 		"/api/v1/const",
@@ -96,6 +98,8 @@ func BenchmarkFastPathCompileTime(bParent *testing.B) {
 
 func BenchmarkMatchCases(bParent *testing.B) {
 	cases := map[string]string{
+		"":                                "/",
+		"/":                               "/",
 		"/api/v1/:param/*":                "/api/v1/entity/1",
 		"/api/*":                          "/api/v1/entity/1",
 		"/api/v1/const":                   "/api/v1/const",

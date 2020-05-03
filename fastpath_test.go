@@ -32,7 +32,7 @@ func Test_With_A_Param_Optional(t *testing.T) {
 		t,
 		New("/api/v1/:param?"),
 		[]testcase{
-			{uri: "/api/v1", params: nil, ok: false},
+			{uri: "/api/v1", params: []string{""}, ok: true},
 			{uri: "/api/v1/", params: []string{""}, ok: true},
 			{uri: "/api/v1/optional", params: []string{"optional"}, ok: true},
 			{uri: "/api/v", params: nil, ok: false},
@@ -47,7 +47,7 @@ func Test_With_With_Wildcard(t *testing.T) {
 		t,
 		New("/api/v1/*"),
 		[]testcase{
-			{uri: "/api/v1", params: nil, ok: false},
+			{uri: "/api/v1", params: []string{""}, ok: true},
 			{uri: "/api/v1/", params: []string{""}, ok: true},
 			{uri: "/api/v1/entity", params: []string{"entity"}, ok: true},
 			{uri: "/api/v1/entity/1/2", params: []string{"entity/1/2"}, ok: true},
@@ -96,10 +96,11 @@ func Test_With_With_Params_And_Optional(t *testing.T) {
 		t,
 		New("/api/:day/:month?/:year?"),
 		[]testcase{
-			{uri: "/api/1", params: nil, ok: false},
+			{uri: "/api/1", params: []string{"1", "", ""}, ok: true},
 			{uri: "/api/1/", params: []string{"1", "", ""}, ok: true},
 			{uri: "/api/1/2", params: []string{"1", "2", ""}, ok: true},
 			{uri: "/api/1/2/3", params: []string{"1", "2", "3"}, ok: true},
+			{uri: "/api/", params: nil, ok: false},
 		},
 	)
 }
@@ -120,7 +121,7 @@ func Test_With_With_Simple_Path(t *testing.T) {
 		New("/"),
 		[]testcase{
 			{uri: "/api", params: nil, ok: false},
-			{uri: "", params: nil, ok: false},
+			{uri: "", params: []string{}, ok: true},
 			{uri: "/", params: []string{}, ok: true},
 		},
 	)

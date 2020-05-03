@@ -21,110 +21,76 @@ type Path struct {
 
 // New ...
 func New(pattern string) (p Path) {
-	var out []seg
+	aPattern := strings.Split(pattern, "/")[1:] // every route starts with an "/"
+	var out = make([]seg, len(aPattern))
 	var params []string
-	startSignPos := 0
-	var specialChar int32 = 0
-
-	lastPos := len(pattern) - 1
-	for pos, char := range pattern {
-		if specialChar != 0 && '/' == char {
-			out = append(out, seg{
-				Param:      paramTrimmer(pattern[startSignPos:pos]),
-				IsParam:    true,
-				IsOptional: pattern[pos-1] == '?' || specialChar == '*',
-			})
-			params = append(params, paramTrimmer(pattern[startSignPos:pos]))
-			startSignPos = pos
-			specialChar = 0
-		} else if '*' == char || ':' == char {
-			out = append(out, seg{
-				Const:       pattern[startSignPos:pos],
-				ConstLength: len(pattern[startSignPos:pos]),
-			})
-			startSignPos = pos
-			specialChar = char
+	for i := 0; i < len(aPattern); i++ {
+		patternLen := len(aPattern[i])
+		if patternLen == 0 { // skip empty parts
+			continue
 		}
-
-		if lastPos == pos {
-			if specialChar != 0 {
-				out = append(out, seg{
-					Param:      paramTrimmer(pattern[startSignPos : pos+1]),
-					IsParam:    true,
-					IsOptional: pattern[pos] == '?' || specialChar == '*',
-				})
-				params = append(params, paramTrimmer(pattern[startSignPos:pos+1]))
-			} else {
-				out = append(out, seg{
-					Const:       pattern[startSignPos : pos+1],
-					ConstLength: len(pattern[startSignPos : pos+1]),
-				})
+		// is parameter
+		if aPattern[i][0] == '*' || aPattern[i][0] == ':' {
+			out[i] = seg{
+				Param:      paramTrimmer(aPattern[i]),
+				IsParam:    true,
+				IsOptional: aPattern[i] == "*" || aPattern[i][patternLen-1] == '?',
+			}
+			params = append(params, out[i].Param)
+		} else {
+			out[i] = seg{
+				Const: aPattern[i],
 			}
 		}
 	}
+
 	p = Path{Segs: out, SegsLength: len(out), Params: params}
 	return
 }
 
 // Match ...
 func (p *Path) Match(s string) ([]string, bool) {
-	params := make([]string, len(p.Params), cap(p.Params)) // reuse slice ?
-	originalLen := len(s)
+	if len(s) > 0 {
+		s = s[1:]
+	}
+	params := make([]string, len(p.Params), cap(p.Params))
 	paramsIterator := 0
+	for _, segment := range p.Segs {
+		i := strings.IndexByte(s, '/')
+		j := i + 1
 
-	for index, segment := range p.Segs {
-
-		if s == "" {
-			if segment.IsOptional == true {
-				continue
-			} else if p.SegsLength-2 == index && p.Segs[index+1].Const == "" && p.Segs[index+1].IsOptional == true {
-				break
-			} else if p.SegsLength-1 == index && segment.Const == "/" { // not strict
-				break
-			}
-			return nil, false
+		if i == -1 || (segment.IsParam && segment.Param == "*") {
+			i = len(s)
+			j = i
 		}
-
-		if segment.ConstLength != 0 { // is const part
-			if len(s) < segment.ConstLength {
+		if segment.IsParam {
+			if s[:i] == "" && !segment.IsOptional {
 				return nil, false
 			}
-			if s[:segment.ConstLength] != segment.Const && s[:segment.ConstLength-1] != segment.Const {
-				return nil, false
-			}
-			s = s[segment.ConstLength:]
+			params[paramsIterator] = s[:i]
+			paramsIterator++
 		} else {
-			if segment.Param == "*" {
-				params[paramsIterator] = s
-				paramsIterator++
-				s = ""
-			} else {
-				nextPart := strings.IndexByte(s, '/')
-				if nextPart == -1 {
-					nextPart = len(s)
-				}
-				params[paramsIterator] = s[:nextPart]
-				paramsIterator++
-				s = s[nextPart:]
+			if s[:i] != segment.Const {
+				return nil, false
 			}
 		}
-	}
-	if s == "" && originalLen != 0 {
-		return params, true
+
+		s = s[j:]
 	}
 
-	return nil, false
+	return params, true
 }
 
 func paramTrimmer(param string) string {
 	start := 0
-	end := len(param) - 1
+	end := len(param)
 
-	if param[start] == 58 { // is :
-		start++
+	if param[start] != ':' { // is not a param
+		return param
 	}
-	if param[end] != 63 { // is ?
-		end++
+	start++
+	if param[end-1] == '?' { // is ?
+		end--
 	}
 
 	return param[start:end]
