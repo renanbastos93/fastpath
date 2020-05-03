@@ -24,8 +24,8 @@ func main() {
         // not match
         return
     }
-    // Matched and have parameters, so will return a map
-    fmt.Println(params["id"]) // 728342
+    // Matched and have parameters, so will return a slice
+    fmt.Println(params[0]) // 728342
 }
 ```
 
