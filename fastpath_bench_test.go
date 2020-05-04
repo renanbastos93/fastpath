@@ -108,7 +108,10 @@ func BenchmarkMatchCases(bParent *testing.B) {
 		"/api/v1/:param2?":                "/api/v1/",
 		"/api/v1/:param/:param2?":         "/api/v1/entity/1",
 		"/api/v1/:param/:param2/:param3":  "/api/v1/entity/1/2",
+		"/api/v1/*/:param3":               "/api/v1/entity/1/2",
 		"/api/v1/:param/:param2/:nomatch": "/api/v1/entity/1",
+		"/config/abc.json":                "/config/abc.json",
+		"/config/noMatch.json":            "/config/abc.json",
 	}
 	for bPattern, bUrl := range cases {
 		bParent.Run(fmt.Sprintf("%s - %s", bPattern, bUrl), func(b *testing.B) {

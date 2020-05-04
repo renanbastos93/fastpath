@@ -124,7 +124,36 @@ func Test_With_With_Wildcard_And_Optional(t *testing.T) {
 			{uri: "/api/", params: []string{"", ""}, ok: true},
 			{uri: "/api/joker", params: []string{"joker", ""}, ok: true},
 			{uri: "/api/joker/batman", params: []string{"joker", "batman"}, ok: true},
+			{uri: "/api/joker/batman/robin", params: []string{"joker/batman", "robin"}, ok: true},
+			{uri: "/api/joker/batman/robin/1", params: []string{"joker/batman/robin", "1"}, ok: true},
 			{uri: "/api", params: []string{"", ""}, ok: true},
+		},
+	)
+}
+func Test_With_With_Wildcard_And_Param(t *testing.T) {
+	checkCases(
+		t,
+		New("/api/*/:param"),
+		[]testcase{
+			{uri: "/api/test/abc", params: []string{"test", "abc"}, ok: true},
+			{uri: "/api/joker/batman", params: []string{"joker", "batman"}, ok: true},
+			{uri: "/api/joker/batman/robin", params: []string{"joker/batman", "robin"}, ok: true},
+			{uri: "/api/joker/batman/robin/1", params: []string{"joker/batman/robin", "1"}, ok: true},
+			{uri: "/api", params: nil, ok: false},
+		},
+	)
+}
+func Test_With_With_Wildcard_And_2Params(t *testing.T) {
+	checkCases(
+		t,
+		New("/api/*/:param/:param2"),
+		[]testcase{
+			{uri: "/api/test/abc", params: nil, ok: false},
+			{uri: "/api/joker/batman", params: nil, ok: false},
+			{uri: "/api/joker/batman/robin", params: []string{"joker", "batman", "robin"}, ok: true},
+			{uri: "/api/joker/batman/robin/1", params: []string{"joker/batman", "robin", "1"}, ok: true},
+			{uri: "/api/joker/batman/robin/1/2", params: []string{"joker/batman/robin", "1", "2"}, ok: true},
+			{uri: "/api", params: nil, ok: false},
 		},
 	)
 }
@@ -139,6 +168,45 @@ func Test_With_With_Simple_Path(t *testing.T) {
 		},
 	)
 }
+func Test_With_With_Empty_Path(t *testing.T) {
+	checkCases(
+		t,
+		New(""),
+		[]testcase{
+			{uri: "/api", params: nil, ok: false},
+			{uri: "", params: []string{}, ok: true},
+			{uri: "/", params: []string{}, ok: true},
+		},
+	)
+}
+
+func Test_With_With_FileName(t *testing.T) {
+	checkCases(
+		t,
+		New("/config/abc.json"),
+		[]testcase{
+			{uri: "/config/abc.json", params: []string{}, ok: true},
+			{uri: "config/abc.json", params: nil, ok: false},
+			{uri: "/config/efg.json", params: nil, ok: false},
+			{uri: "/config", params: nil, ok: false},
+		},
+	)
+}
+
+func Test_With_With_FileName_And_Wildcard(t *testing.T) {
+	checkCases(
+		t,
+		New("/config/*.json"),
+		[]testcase{
+			{uri: "/config/abc.json", params: []string{"abc.json"}, ok: true},
+			{uri: "/config/efg.json", params: []string{"efg.json"}, ok: true},
+			//{uri: "/config/efg.csv", params: nil, ok: false},// doesn`t work, current: params: "efg.csv", true
+			{uri: "config/abc.json", params: nil, ok: false},
+			{uri: "/config", params: nil, ok: false},
+		},
+	)
+}
+
 func Test_With_With_Simple_Path_And_NoMatch(t *testing.T) {
 	checkCases(
 		t,
