@@ -179,6 +179,34 @@ func Test_With_With_Empty_Path(t *testing.T) {
 		},
 	)
 }
+
+func Test_With_With_FileName(t *testing.T) {
+	checkCases(
+		t,
+		New("/config/abc.json"),
+		[]testcase{
+			{uri: "/config/abc.json", params: []string{}, ok: true},
+			{uri: "config/abc.json", params: nil, ok: false},
+			{uri: "/config/efg.json", params: nil, ok: false},
+			{uri: "/config", params: nil, ok: false},
+		},
+	)
+}
+
+func Test_With_With_FileName_And_Wildcard(t *testing.T) {
+	checkCases(
+		t,
+		New("/config/*.json"),
+		[]testcase{
+			{uri: "/config/abc.json", params: []string{"abc.json"}, ok: true},
+			{uri: "/config/efg.json", params: []string{"efg.json"}, ok: true},
+			//{uri: "/config/efg.csv", params: nil, ok: false},// doesn`t work, current: params: "efg.csv", true
+			{uri: "config/abc.json", params: nil, ok: false},
+			{uri: "/config", params: nil, ok: false},
+		},
+	)
+}
+
 func Test_With_With_Simple_Path_And_NoMatch(t *testing.T) {
 	checkCases(
 		t,

@@ -35,7 +35,7 @@ func New(pattern string) (p Path) {
 		if partLen == 0 { // skip empty parts
 			continue
 		}
-		// is parameter
+		// is parameter ?
 		if aPattern[i][0] == '*' || aPattern[i][0] == ':' {
 			out[segIndex] = seg{
 				Param:      paramTrimmer(aPattern[i]),
@@ -44,9 +44,11 @@ func New(pattern string) (p Path) {
 			}
 			params = append(params, out[segIndex].Param)
 		} else {
+			// combine const segments
 			if segIndex > 0 && out[segIndex-1].IsParam == false {
 				segIndex--
 				out[segIndex].Const += "/" + aPattern[i]
+				// create new const segment
 			} else {
 				out[segIndex] = seg{
 					Const: aPattern[i],
@@ -73,10 +75,12 @@ func (p *Path) Match(s string) ([]string, bool) {
 	}
 	for index, segment := range p.Segs {
 		partLen = len(s)
+		// check parameter
 		if segment.IsParam {
+			// determine parameter length
 			if segment.IsLast {
 				i = partLen
-			} else if !segment.IsLast && segment.Param == "*" {
+			} else if segment.Param == "*" {
 				// for the expressjs behavior -> "/api/*/:param" - "/api/joker/batman/robin/1" -> "joker/batman/robin", "1"
 				i = findCharPos(s, '/', strings.Count(s, "/")-(len(p.Segs)-(index+1))+1)
 			} else {
@@ -85,18 +89,22 @@ func (p *Path) Match(s string) ([]string, bool) {
 			if i == -1 {
 				i = partLen
 			}
-			if !segment.IsOptional && s == "" {
+
+			if false == segment.IsOptional && i == 0 {
 				return nil, false
 			}
+
 			params[paramsIterator] = s[:i]
 			paramsIterator++
 		} else {
+			// check const segment
 			i = len(segment.Const)
 			if partLen < i || (i == 0 && partLen > 0) || s[:i] != segment.Const {
 				return nil, false
 			}
 		}
 
+		// reduce founded part from the string
 		if partLen > 0 {
 			j = i + 1
 			if segment.IsLast || partLen < j {
