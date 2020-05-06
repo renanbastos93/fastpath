@@ -68,6 +68,7 @@ func Test_With_With_Param(t *testing.T) {
 		},
 	)
 }
+
 func Test_With_Without_A_Param_Or_Wildcard(t *testing.T) {
 	checkCases(
 		t,
@@ -113,6 +114,9 @@ func Test_With_With_Simple_Wildcard(t *testing.T) {
 			{uri: "/api/", params: []string{""}, ok: true},
 			{uri: "/api/joker", params: []string{"joker"}, ok: true},
 			{uri: "/api", params: []string{""}, ok: true},
+			{uri: "/api/v1/entity", params: []string{"v1/entity"}, ok: true},
+			{uri: "/api2/v1/entity", params: nil, ok: false},
+			{uri: "/api_ignore/v1/entity", params: nil, ok: false},
 		},
 	)
 }
