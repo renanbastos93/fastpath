@@ -102,7 +102,7 @@ func (p *Path) Match(s string) ([]string, bool) {
 			if partLen < i || (i == 0 && partLen > 0) || s[:i] != segment.Const {
 				return nil, false
 				// is not last part, it is bigger than the const part but has no slash at the end
-			} else if false == segment.IsLast && partLen > i && s[i] != '/' {
+			} else if partLen > i && s[i] != '/' {
 				return nil, false
 			}
 		}
