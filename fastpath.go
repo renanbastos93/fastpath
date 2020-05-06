@@ -99,10 +99,7 @@ func (p *Path) Match(s string) ([]string, bool) {
 		} else {
 			// check const segment
 			i = len(segment.Const)
-			if partLen < i || (i == 0 && partLen > 0) || s[:i] != segment.Const {
-				return nil, false
-				// it is bigger than the const part but has no slash at the end
-			} else if partLen > i && s[i] != '/' {
+			if partLen < i || (i == 0 && partLen > 0) || s[:i] != segment.Const || (partLen > i && s[i] != '/') {
 				return nil, false
 			}
 		}
