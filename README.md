@@ -38,21 +38,21 @@ TODO: update benchmarks
 goos: darwin
 goarch: amd64
 pkg: github.com/renanbastos93/fastpath
-BenchmarkMatch-12                                                           30231427   40.3  ns/op  16   B/op  1  allocs/op
-BenchmarkMatchCases//_-_/-12                                                86015425   14.0  ns/op  0    B/op  0  allocs/op
-BenchmarkMatchCases//api/*_-_/api/v1/entity/1-12                            28553300   42.7  ns/op  16   B/op  1  allocs/op
-BenchmarkMatchCases//api/v1/*/:param3_-_/api/v1/entity/1/2-12               13380532   90.1  ns/op  32   B/op  1  allocs/op
-BenchmarkMatchCases//api/v1/:param/*_-_/api/v1/entity/1-12                  15895707   75.0  ns/op  32   B/op  1  allocs/op
-BenchmarkMatchCases//api/v1/:param/:param2/:nomatch_-_/api/v1/entity/1-12   14013058   85.9  ns/op  64   B/op  1  allocs/op
-BenchmarkMatchCases//api/v1/:param/:param2/:param3_-_/api/v1/entity/1/2-12  13662344   86.8  ns/op  64   B/op  1  allocs/op
-BenchmarkMatchCases//api/v1/:param/:param2?_-_/api/v1/entity/1-12           15724731   74.9  ns/op  32   B/op  1  allocs/op
-BenchmarkMatchCases//api/v1/:param2?_-_/api/v1/-12                          28219360   41.6  ns/op  16   B/op  1  allocs/op
-BenchmarkMatchCases//api/v1/:param?_-_/api/v1/entity-12                     28679692   42.1  ns/op  16   B/op  1  allocs/op
-BenchmarkMatchCases//api/v1/const_-_/api/v1/const-12                        83097111   14.7  ns/op  0    B/op  0  allocs/op
-BenchmarkMatchCases//api/v1/test_-_/api/v1/noMatch-12                       94060442   12.8  ns/op  0    B/op  0  allocs/op
-BenchmarkMatchCases//config/abc.json_-_/config/abc.json-12                  80114793   14.9  ns/op  0    B/op  0  allocs/op
-BenchmarkMatchCases//config/noMatch.json_-_/config/abc.json-12              100000000  10.2  ns/op  0    B/op  0  allocs/op
-BenchmarkMatchCases/_-_/-12                                                 86163430   14.0  ns/op  0    B/op  0  allocs/op
-BenchmarkRegexp-12                                                          1683406    664   ns/op  304  B/op  3  allocs/op
-BenchmarkUrlPath-12                                                         7240267    167   ns/op  336  B/op  2  allocs/op
+BenchmarkMatch-12                                                           69732186   16.3  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//_-_/-12                                                100000000  10.7  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//api/*_-_/api/v1/entity/1-12                            75475124   17.2  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//api/v1/*/:param3_-_/api/v1/entity/1/2-12               32059923   38.8  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//api/v1/:param/*_-_/api/v1/entity/1-12                  42632986   25.0  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//api/v1/:param/:param2/:nomatch_-_/api/v1/entity/1-12   38993047   32.0  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//api/v1/:param/:param2/:param3_-_/api/v1/entity/1/2-12  35778060   33.8  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//api/v1/:param/:param2?_-_/api/v1/entity/1-12           48683749   25.2  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//api/v1/:param2?_-_/api/v1/-12                          79739908   15.2  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//api/v1/:param?_-_/api/v1/entity-12                     77837749   15.8  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//api/v1/const_-_/api/v1/const-12                        100000000  10.1  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//api/v1/test_-_/api/v1/noMatch-12                       138586831  8.59  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//config/abc.json_-_/config/abc.json-12                  100000000  10.7  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases//config/noMatch.json_-_/config/abc.json-12              185185951  6.57  ns/op  0    B/op  0  allocs/op
+BenchmarkMatchCases/_-_/-12                                                 100000000  10.0  ns/op  0    B/op  0  allocs/op
+BenchmarkRegexp-12                                                          1792290    675   ns/op  304  B/op  3  allocs/op
+BenchmarkUrlPath-12                                                         7052295    217   ns/op  336  B/op  2  allocs/op
 ```
