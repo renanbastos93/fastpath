@@ -18,6 +18,9 @@ type Path struct {
 	Params []string
 }
 
+// dummy slice with string, we use it to avoid the slice creation
+var paramsDummy = make([]string, 100, 100)
+
 // New ...
 func New(pattern string) (p Path) {
 	var patternCount int
@@ -68,7 +71,8 @@ func New(pattern string) (p Path) {
 
 // Match ...
 func (p *Path) Match(s string) ([]string, bool) {
-	params := make([]string, len(p.Params), cap(p.Params))
+	lenKeys := len(p.Params)
+	params := paramsDummy[0:lenKeys:lenKeys]
 	var i, j, paramsIterator, partLen int
 	if len(s) > 0 {
 		s = s[1:]
