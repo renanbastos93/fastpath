@@ -18,6 +18,8 @@ type Path struct {
 	Params []string
 }
 
+const wildcardParam string = "*"
+
 // dummy slice with string, we use it to avoid the slice creation
 var paramsDummy = make([]string, 100, 100)
 
@@ -43,7 +45,7 @@ func New(pattern string) (p Path) {
 			out[segIndex] = seg{
 				Param:      paramTrimmer(aPattern[i]),
 				IsParam:    true,
-				IsOptional: aPattern[i] == "*" || aPattern[i][partLen-1] == '?',
+				IsOptional: aPattern[i] == wildcardParam || aPattern[i][partLen-1] == '?',
 			}
 			params = append(params, out[segIndex].Param)
 		} else {
@@ -82,7 +84,7 @@ func (p *Path) Match(s string) ([]string, bool) {
 		// check parameter
 		if segment.IsParam {
 			// determine parameter length
-			if segment.Param == "*" {
+			if segment.Param == wildcardParam {
 				if segment.IsLast {
 					i = partLen
 				} else {

@@ -87,7 +87,7 @@ func Test_With_With_A_Param_And_Wildcard_Differents_Positions(t *testing.T) {
 		t,
 		New("/api/v1/:param/abc/*"),
 		[]testcase{
-			{uri: "/api/v1/well/abc/wildcard", params: []string{"well", "wildcard"}, ok: true},
+			{uri: "/api/v1/well/abc/wildcardParam", params: []string{"well", "wildcardParam"}, ok: true},
 			{uri: "/api/v1/well/abc/", params: []string{"well", ""}, ok: true},
 			{uri: "/api/v1/well/abc", params: []string{"well", ""}, ok: true},
 			{uri: "/api/v1/well/ttt", params: nil, ok: false},
