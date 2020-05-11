@@ -122,7 +122,7 @@ func (p *Path) Match(s string) ([]string, bool) {
 			s = s[j:]
 		}
 	}
-	if len(s) > 0 {
+	if len(s) != 0 {
 		return nil, false
 	}
 
