@@ -18,6 +18,8 @@ type Path struct {
 	Params []string
 }
 
+const wildcardParam string = "*"
+
 // dummy slice with string, we use it to avoid the slice creation
 var paramsDummy = make([]string, 100, 100)
 
@@ -43,7 +45,7 @@ func New(pattern string) (p Path) {
 			out[segIndex] = seg{
 				Param:      paramTrimmer(aPattern[i]),
 				IsParam:    true,
-				IsOptional: aPattern[i] == "*" || aPattern[i][partLen-1] == '?',
+				IsOptional: aPattern[i] == wildcardParam || aPattern[i][partLen-1] == '?',
 			}
 			params = append(params, out[segIndex].Param)
 		} else {
@@ -82,11 +84,13 @@ func (p *Path) Match(s string) ([]string, bool) {
 		// check parameter
 		if segment.IsParam {
 			// determine parameter length
-			if segment.IsLast {
-				i = partLen
-			} else if segment.Param == "*" {
-				// for the expressjs behavior -> "/api/*/:param" - "/api/joker/batman/robin/1" -> "joker/batman/robin", "1"
-				i = findCharPos(s, '/', strings.Count(s, "/")-(len(p.Segs)-(index+1))+1)
+			if segment.Param == wildcardParam {
+				if segment.IsLast {
+					i = partLen
+				} else {
+					// for the expressjs behavior -> "/api/*/:param" - "/api/joker/batman/robin/1" -> "joker/batman/robin", "1"
+					i = findCharPos(s, '/', strings.Count(s, "/")-(len(p.Segs)-(index+1))+1)
+				}
 			} else {
 				i = strings.IndexByte(s, '/')
 			}
@@ -117,6 +121,9 @@ func (p *Path) Match(s string) ([]string, bool) {
 
 			s = s[j:]
 		}
+	}
+	if len(s) != 0 {
+		return nil, false
 	}
 
 	return params, true

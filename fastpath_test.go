@@ -63,6 +63,7 @@ func Test_With_With_Param(t *testing.T) {
 		New("/api/v1/:param"),
 		[]testcase{
 			{uri: "/api/v1/entity", params: []string{"entity"}, ok: true},
+			{uri: "/api/v1/entity/8728382", params: nil, ok: false},
 			{uri: "/api/v1", params: nil, ok: false},
 			{uri: "/api/v1/", params: nil, ok: false},
 		},
